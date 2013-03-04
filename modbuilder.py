@@ -4,10 +4,10 @@ class Menu(object):
     def __init__(self, name, key=None, type=MAKE, default=False):
         self.name = name
         if key is None:
-            key = self.name[0]
+            key = self.name[0].upper()
         self.key = key
         self.type = type
-        self.default = False
+        self.default = default
 
     def __str__(self):
         if self.type == MAKE:
@@ -15,7 +15,7 @@ class Menu(object):
         else:
             type_name = "COOKERY"
 
-        return ".%s. -%s- *%s*" % (self.name, self.key, type_name)
+        return ".%s. -%s- *%s*\r\n" % (self.name, self.key, type_name)
 
     def start(self):
         return "[SUBMENU_START:%s]\r\n" % self.name
@@ -27,11 +27,12 @@ CookMenu = lambda *args, **kwargs: Menu(*args, type=COOK, **kwargs)
 
 # Default menus
 DMenu = lambda *args, **kwargs: Menu(*args, default=True, **kwargs)
-clothes = DMenu("Clothes")
-lumber = DMenu("Lumber")
-trapping = DMenu("Trapping")
-transport = DMenu("Transport", "R")
-weapons = DMenu("Weapons")
+clothes = DMenu("clothes")
+lumber = DMenu("lumber")
+trapping = DMenu("trapping")
+transport = DMenu("transport", "R")
+utility = DMenu("utility")
+weapons = DMenu("weapon")
 
 # Default cooking menus
 DCookMenu = lambda *args, **kwargs: CookMenu(*args, default=True, **kwargs)
@@ -62,7 +63,7 @@ class Ingredient(object):
         if self.amount > 1:
             s += " (%d)" % self.amount
         elif self.amount < 0:
-            s += " #%d#" % (-self.amount)
+            s += " #%0.3f#" % (-self.amount)
 
         if self.note is not None:
             s += " '%s'" % self.note
@@ -163,6 +164,8 @@ def build_files(id, all_recipes):
     with open("menudef_%s.txt" % id, "w") as menudef:
         for menu in additional_menus:
             menudef.write(str(menu))
+        menudef.write("\r\n")
+        menudef.write("-end\r\n")
 
     with open("diy_%s.txt" % id, "w") as diy:
         for menu, recipes in menu_recipes.items():
